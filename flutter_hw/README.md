@@ -3,8 +3,12 @@
 <p align="center">
     <img src="./images-readme/musicapp_logo.jpeg" width="200px" />
     <h1 align="center">Music App - Flutter homework project for ICM classes</h1>
-    <img src="./images-readme/1.png" style="display: block; margin: 0 auto;" />
-    <img src="./images-readme/2.png" style="display: block; margin: 0 auto;" />
+    <p align="center">
+        <img src="./images-readme/1.png" />
+    </p>
+    <p align="center">
+        <img src="./images-readme/2.png" />
+    </p>
 </p>
 <hr/>
 
