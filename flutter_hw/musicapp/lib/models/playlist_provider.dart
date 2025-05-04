@@ -44,10 +44,13 @@ class PlaylistProvider extends ChangeNotifier {
 
   // audio player
   final AudioPlayer _audioPlayer = AudioPlayer();
+  final List<int> _favoriteSongs = [];
 
   Duration _currentDuration = Duration.zero;
   Duration _totalDuration = Duration.zero;
   bool _isPlaying = false;
+  bool _isShuffle = false;
+  bool _isRepeat = false;
 
   void play() async {
     final String path = _playlist[_currentSongIndex!].audioPath;
@@ -84,26 +87,53 @@ class PlaylistProvider extends ChangeNotifier {
 
   void playNextSong() {
     if (_currentSongIndex != null) {
-      if (_currentSongIndex! < _playlist.length - 1) {
+      if (_isShuffle) {
+        _currentSongIndex = (List.generate(_playlist.length, (i) => i)..shuffle()).first;
+      } else if (_currentSongIndex! < _playlist.length - 1) {
         _currentSongIndex = _currentSongIndex! + 1;
       } else {
-        _currentSongIndex = 0;
+        return;
       }
       play();
     }
   }
 
-  void playPreviousSong() async {
+  void playPreviousSong() {
     if (_currentDuration.inSeconds > 2) {
       seek(Duration.zero);
     } else {
-      if (_currentSongIndex! > 0) {
+      if (_isShuffle) {
+        _currentSongIndex = (List.generate(_playlist.length, (i) => i)..shuffle()).first;
+      } else if (_currentSongIndex! > 0) {
         _currentSongIndex = _currentSongIndex! - 1;
       } else {
-        _currentSongIndex = _playlist.length - 1;
+        return; 
       }
       play();
     }
+  }
+
+  void toggleShuffle() {
+    _isShuffle = !_isShuffle;
+    notifyListeners();
+  }
+
+  void toggleRepeat() {
+    _isRepeat = !_isRepeat;
+    notifyListeners();
+  }
+
+  void toggleFavorite(int songIndex) {
+    if (_favoriteSongs.contains(songIndex)) {
+      _favoriteSongs.remove(songIndex); 
+    } else {
+      _favoriteSongs.add(songIndex);
+    }
+    notifyListeners();
+  }
+
+  bool isFavorite(int songIndex) {
+    return _favoriteSongs.contains(songIndex);
   }
 
   PlaylistProvider() {
@@ -122,7 +152,14 @@ class PlaylistProvider extends ChangeNotifier {
     });
 
     _audioPlayer.onPlayerComplete.listen((event) {
-      playNextSong();
+      if (_isRepeat) {
+        if (_currentSongIndex != null) {
+          _currentSongIndex = _currentSongIndex; 
+          play();
+        }
+      } else {
+        playNextSong();
+      }
     });
   }
 
@@ -132,6 +169,9 @@ class PlaylistProvider extends ChangeNotifier {
   bool get isPlaying => _isPlaying;
   Duration get currentDuration => _currentDuration;
   Duration get totalDuration => _totalDuration;
+  bool get isShuffle => _isShuffle;
+  bool get isRepeat => _isRepeat;
+  List<int> get favoriteSongs => _favoriteSongs;
 
   // Setters
   set currentSongIndex(int? index) {

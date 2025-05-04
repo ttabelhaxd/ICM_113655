@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:musicapp/pages/favorites_page.dart';
 import 'package:musicapp/pages/settings_page.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -28,6 +29,24 @@ class MyDrawer extends StatelessWidget {
               title: const Text('H O M E'),
               leading: const Icon(Icons.home),
               onTap: () => {Navigator.pop(context)},
+            ),
+          ),
+          
+          // favourites tile
+          Padding(
+            padding: const EdgeInsets.only(left: 25.0, top: 10),
+            child: ListTile(
+              title: const Text('F A V O R I T E S'),
+              leading: const Icon(Icons.favorite),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FavoritesPage(),
+                  ),
+                );
+              },
             ),
           ),
 

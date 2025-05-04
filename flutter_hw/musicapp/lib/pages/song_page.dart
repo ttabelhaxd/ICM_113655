@@ -46,7 +46,79 @@ class SongPage extends StatelessWidget {
                         ),
                       ),
 
-                      IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'favorite') {
+                            Provider.of<PlaylistProvider>(
+                              context,
+                              listen: false,
+                            ).toggleFavorite(
+                              Provider.of<PlaylistProvider>(
+                                    context,
+                                    listen: false,
+                                  ).currentSongIndex ??
+                                  0,
+                            );
+                          } else if (value == 'share') { 
+                            //TODO                                                       
+                          } else if (value == 'details') {
+                            // Exibir detalhes da música
+                            final currentSong =
+                                Provider.of<PlaylistProvider>(
+                                  context,
+                                  listen: false,
+                                ).playlist[Provider.of<PlaylistProvider>(
+                                      context,
+                                      listen: false,
+                                    ).currentSongIndex ??
+                                    0];
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text(currentSong.songName),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Artist: ${currentSong.artistName}\nAlbum:',
+                                        ),
+                                        const SizedBox(height: 10),
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Image.asset(
+                                            currentSong.albumArtImagePath,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Close'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          }
+                        },
+                        itemBuilder:
+                            (context) => [
+                              const PopupMenuItem(
+                                value: 'favorite',
+                                child: Text('Add/Remove Favorite'),
+                              ),
+                              const PopupMenuItem(
+                                value: 'share',
+                                child: Text('Share Song'),
+                              ),
+                              const PopupMenuItem(
+                                value: 'details',
+                                child: Text('Song Details'),
+                              ),
+                            ],
+                      ),
                     ],
                   ),
 
@@ -87,14 +159,26 @@ class SongPage extends StatelessWidget {
                                         fontSize: 16,
                                         color: Colors.grey,
                                       ),
-                                      overflow: TextOverflow.ellipsis, 
-                                      maxLines: 1, 
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                   ],
                                 ),
                               ),
 
-                              const Icon(Icons.favorite, color: Colors.red),
+                              IconButton(
+                                icon: Icon(
+                                  value.isFavorite(value.currentSongIndex ?? 0)
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  value.toggleFavorite(
+                                    value.currentSongIndex ?? 0,
+                                  );
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -112,8 +196,28 @@ class SongPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(formatTime(value.currentDuration)),
-                            const Icon(Icons.shuffle),
-                            const Icon(Icons.repeat),
+                            IconButton(
+                              icon: Icon(
+                                Icons.shuffle,
+                                color:
+                                    value.isShuffle
+                                        ? Colors.green
+                                        : Colors.grey,
+                              ),
+                              onPressed: () {
+                                value.toggleShuffle();
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.repeat,
+                                color:
+                                    value.isRepeat ? Colors.green : Colors.grey,
+                              ),
+                              onPressed: () {
+                                value.toggleRepeat();
+                              },
+                            ),
                             Text(formatTime(value.totalDuration)),
                           ],
                         ),
